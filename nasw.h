@@ -51,6 +51,8 @@
 #define NS_S_GENERIC    1
 #define NS_S_MAMMAL     2
 
+#define NS_SPSC_OFFSET 64
+
 extern char *ns_tab_nt_i2c, *ns_tab_aa_i2c;
 extern uint8_t ns_tab_a2r[22], ns_tab_nt4[256], ns_tab_aa20[256], ns_tab_aa13[256];
 extern uint8_t ns_tab_codon[64], ns_tab_codon13[64];
@@ -62,6 +64,7 @@ typedef struct {
 	int32_t xdrop, end_bonus; // xdrop for extension, and bonus for reaching end of proteins
 	int32_t asize; // alphabet size; always 22 in the current implementation
 	int32_t sp[6]; // 0:pos3, 1:GC-AC, 2:AT-AC, 3:other, 4:pos0, 5:poly-Y
+	int32_t sp_null_bonus; // it is negative
 	float ie_coef;
 	const int8_t *sc; // 22x22 scoring matrix
 	uint8_t *nt4, *aa20, *codon; // char-to-int convertion table and codon table

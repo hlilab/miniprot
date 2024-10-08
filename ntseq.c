@@ -135,7 +135,7 @@ int64_t mp_ntseq_spsc_get(const mp_ntdb_t *db, int32_t cid, int64_t st0, int64_t
 	if (en0 < 0 || en0 > db->ctg[cid].len) en0 = db->ctg[cid].len;
 	if (!rev) st = st0, en = en0;
 	else st = db->ctg[cid].len - en0, en = db->ctg[cid].len - st0;
-	memset(sc, 0, en - st);
+	memset(sc, 0xff, en - st);
 	s = &db->spsc[cid << 1 | (!!rev)];
 	if (s->n > 0) {
 		int32_t j, l, r;
@@ -146,8 +146,7 @@ int64_t mp_ntseq_spsc_get(const mp_ntdb_t *db, int32_t cid, int64_t st0, int64_t
 			uint8_t score = s->a[j] & 0xff;
 			assert(x <= en - st);
 			if (x == en - st) continue;
-			//fprintf(stderr, "st=%lld, j=%d, pos=%lld\n", st0, j, s->a[j]>>8);
-			sc[x] = sc[x] > score? sc[x] : score;
+			if (sc[x] == 0xff || sc[x] < score) sc[x] = score;
 		}
 	}
 	return en - st;
@@ -242,6 +241,7 @@ int32_t mp_ntseq_read_spsc(mp_ntdb_t *nt, const char *fn, int32_t max_sc)
 
 	fp = fn && strcmp(fn, "-") != 0? gzopen(fn, "rb") : gzdopen(0, "rb");
 	if (fp == 0) return -1;
+	if (max_sc > 63) max_sc = 63;
 	mp_ntseq_index_name(nt);
 	nt->spsc = Kcalloc(0, mp_spsc_t, nt->n_ctg * 2);
 	ks = ks_init(fp);
@@ -271,15 +271,15 @@ int32_t mp_ntseq_read_spsc(mp_ntdb_t *nt, const char *fn, int32_t max_sc)
 			}
 		}
 		if (i < 4) continue; // not enough fields
-		if (score <= 0) continue;
 		if (score > max_sc) score = max_sc;
+		if (score < -max_sc) score = -max_sc;
 		cid = mp_ntseq_name2id(nt, name);
 		if (cid < 0 || type < 0 || strand == 0 || pos < 0) continue; // FIXME: give a warning!
 		s = &nt->spsc[cid << 1 | (strand > 0? 0 : 1)];
 		Kgrow(0, uint64_t, s->a, s->n, s->m);
 		if (strand < 0) pos = nt->ctg[cid].len - pos;
 		if (pos > 0 && pos < nt->ctg[cid].len) { // ignore scores at the ends
-			s->a[s->n++] = (uint64_t)pos<<8 | score<<1 | type;
+			s->a[s->n++] = (uint64_t)pos << 8 | (score + NS_SPSC_OFFSET) << 1 | type;
 			++n_read;
 		}
 	}
