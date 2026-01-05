@@ -286,7 +286,7 @@ allowing frameshifts but not splicing:
 \left\{\begin{array}{lll}
 I_{ij}&=&\max\{ H_{i,j-1} - q, I_{i,j-1} \} - e \\
 D_{ij}&=&\max\{ H_{i-3,j} - q, D_{i-3,j} \} - e \\
-H_{ij}&=&\max\{ H_{i-3,j}+s(i,j), I_{ij}, D_{ij}, H_{i-1,j-1}-f, \\
+H_{ij}&=&\max\{ H_{i-3,j-1}+s(i,j), I_{ij}, D_{ij}, H_{i-1,j-1}-f, \\
        && H_{i-2,j-1}-f, H_{i-1,j}-f, H_{i-2,j}-f \} \\
 \end{array}\right.
 \end{equation}
@@ -310,8 +310,8 @@ D_{ij}&=&\max\{ H_{i-3,j} - q, D_{i-3,j} \} - e \\
 A_{ij}&=&\max\{ H_{i-1,j} - r - d(i-1), A_{i-1,j} \} \\
 B_{ij}&=&\max\{ H_{i-1,j-1} - r - d(i), B_{i-1,j} \} \\
 C_{ij}&=&\max\{ H_{i-1,j-1} - r - d(i+1), C_{i-1,j} \} \\
-H_{ij}&=&\max\{ H_{i-3,j}+s(i,j), I_{ij}, D_{ij}, H_{i-1,j-1}-f, \\
-       && H_{i-2,j-1}-f, H_{i-1,j}-f, H_{i-2,j}-f, \\
+H_{ij}&=&\max\{ H_{i-3,j-1}+s(i,j), I_{ij}, D_{ij}, H_{i-1,j-1} \\
+       && -f,H_{i-2,j-1}-f, H_{i-1,j}-f, H_{i-2,j}-f, \\
 	   && A_{ij}-a(i), B_{ij}-a(i-2), C_{ij}-a(i-1) \}
 \end{array}\right.
 \end{equation}
